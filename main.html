@@ -1,0 +1,712 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Ledger</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f5f3f0;
+            color: #2c2c2c;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px double #8b4513;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #8b4513;
+            font-weight: normal;
+            text-shadow: 1px 1px 2px #d2b48c;
+        }
+
+        .header p {
+            font-style: italic;
+            color: #696969;
+            margin-top: 5px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #e8dcc0;
+            border: 2px solid #8b4513;
+            margin-bottom: 30px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-right: 1px solid #8b4513;
+            color: #8b4513;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .nav-tab:last-child {
+            border-right: none;
+        }
+
+        .nav-tab.active {
+            background: #d2b48c;
+            color: #2c2c2c;
+        }
+
+        .nav-tab:hover {
+            background: #ddd5c4;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: #fefcf8;
+            border: 2px solid #8b4513;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 5px 5px 15px rgba(139, 69, 19, 0.2);
+        }
+
+        .card h3 {
+            color: #8b4513;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid #d2b48c;
+            padding-bottom: 8px;
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-box {
+            background: #fefcf8;
+            border: 2px solid #8b4513;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-box h4 {
+            color: #8b4513;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-box .amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c2c2c;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .input-row input, .input-row select {
+            padding: 8px 12px;
+            border: 2px solid #8b4513;
+            background: #fefcf8;
+            font-family: Georgia, serif;
+            color: #2c2c2c;
+        }
+
+        .input-row input:focus, .input-row select:focus {
+            outline: none;
+            background: #fff;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #8b4513;
+            color: #fefcf8;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #a0522d;
+            border-color: #a0522d;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            background: #cd853f;
+            border-color: #cd853f;
+        }
+
+        .btn-small:hover {
+            background: #d2691e;
+            border-color: #d2691e;
+        }
+
+        .balance-sheet {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .balance-section h4 {
+            color: #8b4513;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 5px;
+        }
+
+        .balance-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #d2b48c;
+        }
+
+        .balance-line:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            border-top: 2px solid #8b4513;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .transaction-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f6f0;
+            border-left: 4px solid #8b4513;
+        }
+
+        .transaction-entry.income {
+            border-left-color: #228b22;
+        }
+
+        .transaction-entry.expense {
+            border-left-color: #b22222;
+        }
+
+        .list-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #d2b48c;
+            background: #fefcf8;
+        }
+
+        .ledger-title {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #8b4513;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .balance-sheet {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                border-right: none;
+                border-bottom: 1px solid #8b4513;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Personal Ledger</h1>
+            <p>~ A Simple Account Book ~</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('summary')">Summary</button>
+            <button class="nav-tab" onclick="showTab('entries')">Entries</button>
+            <button class="nav-tab" onclick="showTab('balance')">Balance Sheet</button>
+            <button class="nav-tab" onclick="showTab('manage')">Manage</button>
+        </div>
+
+        <!-- Summary Tab -->
+        <div id="summary" class="tab-content active">
+            <div class="summary-row">
+                <div class="summary-box">
+                    <h4>Total Assets</h4>
+                    <div class="amount" id="totalAssetsSum">₹0.00</div>
+                </div>
+                <div class="summary-box">
+                    <h4>Total Liabilities</h4>
+                    <div class="amount" id="totalLiabilitiesSum">₹0.00</div>
+                </div>
+                <div class="summary-box">
+                    <h4>Net Worth</h4>
+                    <div class="amount" id="netWorthSum">₹0.00</div>
+                </div>
+                <div class="summary-box">
+                    <h4>Monthly Income</h4>
+                    <div class="amount" id="monthlyIncomeSum">₹0.00</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Recent Transactions</h3>
+                <div id="recentList"></div>
+            </div>
+        </div>
+
+        <!-- Entries Tab -->
+        <div id="entries" class="tab-content">
+            <div class="card">
+                <h3>Add Transaction</h3>
+                <div class="input-row">
+                    <input type="text" id="entryDesc" placeholder="Description">
+                    <input type="number" id="entryAmount" placeholder="Amount" step="0.01">
+                    <select id="entryType">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <select id="entryCategory">
+                        <option value="salary">Salary</option>
+                        <option value="business">Business</option>
+                        <option value="investment">Investment</option>
+                        <option value="food">Food</option>
+                        <option value="transport">Transport</option>
+                        <option value="utilities">Bills</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button class="btn" onclick="addEntry()">Add Entry</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Transaction History</h3>
+                <div class="list-container" id="entryList"></div>
+            </div>
+        </div>
+
+        <!-- Balance Sheet Tab -->
+        <div id="balance" class="tab-content">
+            <div class="card">
+                <div class="ledger-title">Balance Sheet</div>
+                <div class="balance-sheet">
+                    <div class="balance-section">
+                        <h4>Assets</h4>
+                        <div id="assetsSection"></div>
+                    </div>
+                    <div class="balance-section">
+                        <h4>Liabilities & Capital</h4>
+                        <div id="liabilitiesSection"></div>
+                        <div style="margin-top: 25px;">
+                            <h4>Capital</h4>
+                            <div id="capitalSection"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Tab -->
+        <div id="manage" class="tab-content">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="card">
+                    <h3>Add Asset</h3>
+                    <div class="input-row">
+                        <input type="text" id="assetName" placeholder="Asset Name">
+                        <input type="number" id="assetValue" placeholder="Value" step="0.01">
+                        <select id="assetType">
+                            <option value="current">Current Asset</option>
+                            <option value="fixed">Fixed Asset</option>
+                        </select>
+                        <button class="btn" onclick="addAsset()">Add</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Add Liability</h3>
+                    <div class="input-row">
+                        <input type="text" id="liabilityName" placeholder="Liability Name">
+                        <input type="number" id="liabilityValue" placeholder="Value" step="0.01">
+                        <select id="liabilityType">
+                            <option value="current">Current Liability</option>
+                            <option value="long-term">Long-term Liability</option>
+                        </select>
+                        <button class="btn" onclick="addLiability()">Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="card">
+                    <h3>Assets List</h3>
+                    <div class="list-container" id="assetsList"></div>
+                </div>
+                <div class="card">
+                    <h3>Liabilities List</h3>
+                    <div class="list-container" id="liabilitiesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let ledger = {
+            assets: [],
+            liabilities: [],
+            transactions: []
+        };
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'summary') {
+                updateSummary();
+            } else if (tabName === 'balance') {
+                updateBalanceSheet();
+            }
+        }
+
+        // Add transaction
+        function addEntry() {
+            const desc = document.getElementById('entryDesc').value;
+            const amount = parseFloat(document.getElementById('entryAmount').value);
+            const type = document.getElementById('entryType').value;
+            const category = document.getElementById('entryCategory').value;
+
+            if (!desc || !amount) {
+                alert('Please enter description and amount');
+                return;
+            }
+
+            const entry = {
+                id: Date.now(),
+                description: desc,
+                amount: amount,
+                type: type,
+                category: category,
+                date: new Date().toLocaleDateString()
+            };
+
+            ledger.transactions.push(entry);
+            
+            // Clear inputs
+            document.getElementById('entryDesc').value = '';
+            document.getElementById('entryAmount').value = '';
+            
+            updateEntryList();
+            updateSummary();
+        }
+
+        // Add asset
+        function addAsset() {
+            const name = document.getElementById('assetName').value;
+            const value = parseFloat(document.getElementById('assetValue').value);
+            const type = document.getElementById('assetType').value;
+
+            if (!name || !value) {
+                alert('Please enter name and value');
+                return;
+            }
+
+            const asset = {
+                id: Date.now(),
+                name: name,
+                value: value,
+                type: type
+            };
+
+            ledger.assets.push(asset);
+            
+            // Clear inputs
+            document.getElementById('assetName').value = '';
+            document.getElementById('assetValue').value = '';
+            
+            updateAssetsList();
+            updateSummary();
+        }
+
+        // Add liability
+        function addLiability() {
+            const name = document.getElementById('liabilityName').value;
+            const value = parseFloat(document.getElementById('liabilityValue').value);
+            const type = document.getElementById('liabilityType').value;
+
+            if (!name || !value) {
+                alert('Please enter name and value');
+                return;
+            }
+
+            const liability = {
+                id: Date.now(),
+                name: name,
+                value: value,
+                type: type
+            };
+
+            ledger.liabilities.push(liability);
+            
+            // Clear inputs
+            document.getElementById('liabilityName').value = '';
+            document.getElementById('liabilityValue').value = '';
+            
+            updateLiabilitiesList();
+            updateSummary();
+        }
+
+        // Delete functions
+        function deleteEntry(id) {
+            ledger.transactions = ledger.transactions.filter(t => t.id !== id);
+            updateEntryList();
+            updateSummary();
+        }
+
+        function deleteAsset(id) {
+            ledger.assets = ledger.assets.filter(a => a.id !== id);
+            updateAssetsList();
+            updateSummary();
+        }
+
+        function deleteLiability(id) {
+            ledger.liabilities = ledger.liabilities.filter(l => l.id !== id);
+            updateLiabilitiesList();
+            updateSummary();
+        }
+
+        // Update functions
+        function updateEntryList() {
+            const list = document.getElementById('entryList');
+            list.innerHTML = '';
+
+            ledger.transactions.slice().reverse().forEach(entry => {
+                const div = document.createElement('div');
+                div.className = `transaction-entry ${entry.type}`;
+                div.innerHTML = `
+                    <div>
+                        <strong>${entry.description}</strong><br>
+                        <small>${entry.category} - ${entry.date}</small>
+                    </div>
+                    <div>
+                        <span style="font-weight: bold; color: ${entry.type === 'income' ? '#228b22' : '#b22222'}">
+                            ${entry.type === 'income' ? '+' : '-'}₹${entry.amount.toFixed(2)}
+                        </span>
+                        <button class="btn-small" onclick="deleteEntry(${entry.id})" style="margin-left: 10px;">Remove</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateAssetsList() {
+            const list = document.getElementById('assetsList');
+            list.innerHTML = '';
+
+            ledger.assets.forEach(asset => {
+                const div = document.createElement('div');
+                div.className = 'transaction-entry';
+                div.innerHTML = `
+                    <div>
+                        <strong>${asset.name}</strong><br>
+                        <small>${asset.type === 'current' ? 'Current Asset' : 'Fixed Asset'}</small>
+                    </div>
+                    <div>
+                        <span style="font-weight: bold;">₹${asset.value.toFixed(2)}</span>
+                        <button class="btn-small" onclick="deleteAsset(${asset.id})" style="margin-left: 10px;">Remove</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateLiabilitiesList() {
+            const list = document.getElementById('liabilitiesList');
+            list.innerHTML = '';
+
+            ledger.liabilities.forEach(liability => {
+                const div = document.createElement('div');
+                div.className = 'transaction-entry';
+                div.innerHTML = `
+                    <div>
+                        <strong>${liability.name}</strong><br>
+                        <small>${liability.type === 'current' ? 'Current Liability' : 'Long-term Liability'}</small>
+                    </div>
+                    <div>
+                        <span style="font-weight: bold;">₹${liability.value.toFixed(2)}</span>
+                        <button class="btn-small" onclick="deleteLiability(${liability.id})" style="margin-left: 10px;">Remove</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateBalanceSheet() {
+            const assetsSection = document.getElementById('assetsSection');
+            const liabilitiesSection = document.getElementById('liabilitiesSection');
+            const capitalSection = document.getElementById('capitalSection');
+
+            // Assets
+            let currentAssets = 0;
+            let fixedAssets = 0;
+            let currentAssetsHtml = '';
+            let fixedAssetsHtml = '';
+
+            ledger.assets.forEach(asset => {
+                if (asset.type === 'current') {
+                    currentAssets += asset.value;
+                    currentAssetsHtml += `<div class="balance-line"><span>${asset.name}</span><span>₹${asset.value.toFixed(2)}</span></div>`;
+                } else {
+                    fixedAssets += asset.value;
+                    fixedAssetsHtml += `<div class="balance-line"><span>${asset.name}</span><span>₹${asset.value.toFixed(2)}</span></div>`;
+                }
+            });
+
+            const totalAssets = currentAssets + fixedAssets;
+
+            assetsSection.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Current Assets</strong>
+                    ${currentAssetsHtml}
+                    <div class="balance-line"><span>Total Current Assets</span><span>₹${currentAssets.toFixed(2)}</span></div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>Fixed Assets</strong>
+                    ${fixedAssetsHtml}
+                    <div class="balance-line"><span>Total Fixed Assets</span><span>₹${fixedAssets.toFixed(2)}</span></div>
+                </div>
+                
+                <div class="balance-line"><span>TOTAL ASSETS</span><span>₹${totalAssets.toFixed(2)}</span></div>
+            `;
+
+            // Liabilities
+            let currentLiabilities = 0;
+            let longTermLiabilities = 0;
+            let currentLiabilitiesHtml = '';
+            let longTermLiabilitiesHtml = '';
+
+            ledger.liabilities.forEach(liability => {
+                if (liability.type === 'current') {
+                    currentLiabilities += liability.value;
+                    currentLiabilitiesHtml += `<div class="balance-line"><span>${liability.name}</span><span>₹${liability.value.toFixed(2)}</span></div>`;
+                } else {
+                    longTermLiabilities += liability.value;
+                    longTermLiabilitiesHtml += `<div class="balance-line"><span>${liability.name}</span><span>₹${liability.value.toFixed(2)}</span></div>`;
+                }
+            });
+
+            const totalLiabilities = currentLiabilities + longTermLiabilities;
+
+            liabilitiesSection.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Current Liabilities</strong>
+                    ${currentLiabilitiesHtml}
+                    <div class="balance-line"><span>Total Current Liabilities</span><span>₹${currentLiabilities.toFixed(2)}</span></div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>Long-term Liabilities</strong>
+                    ${longTermLiabilitiesHtml}
+                    <div class="balance-line"><span>Total Long-term Liabilities</span><span>₹${longTermLiabilities.toFixed(2)}</span></div>
+                </div>
+                
+                <div class="balance-line"><span>TOTAL LIABILITIES</span><span>₹${totalLiabilities.toFixed(2)}</span></div>
+            `;
+
+            // Capital
+            const capital = totalAssets - totalLiabilities;
+            capitalSection.innerHTML = `
+                <div class="balance-line"><span>Owner's Capital</span><span>₹${capital.toFixed(2)}</span></div>
+                <div class="balance-line"><span>TOTAL CAPITAL & LIABILITIES</span><span>₹${(totalLiabilities + capital).toFixed(2)}</span></div>
+            `;
+        }
+
+        function updateSummary() {
+            const totalAssets = ledger.assets.reduce((sum, asset) => sum + asset.value, 0);
+            const totalLiabilities = ledger.liabilities.reduce((sum, liability) => sum + liability.value, 0);
+            const netWorth = totalAssets - totalLiabilities;
+            
+            const monthlyIncome = ledger.transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            document.getElementById('totalAssetsSum').textContent = `₹${totalAssets.toFixed(2)}`;
+            document.getElementById('totalLiabilitiesSum').textContent = `₹${totalLiabilities.toFixed(2)}`;
+            document.getElementById('netWorthSum').textContent = `₹${netWorth.toFixed(2)}`;
+            document.getElementById('monthlyIncomeSum').textContent = `₹${monthlyIncome.toFixed(2)}`;
+
+            // Update recent transactions
+            const recentDiv = document.getElementById('recentList');
+            const recentEntries = ledger.transactions.slice(-5).reverse();
+            recentDiv.innerHTML = recentEntries.map(t => `
+                <div class="balance-line">
+                    <span>${t.description}</span>
+                    <span style="color: ${t.type === 'income' ? '#228b22' : '#b22222'}">
+                        ${t.type === 'income' ? '+' : '-'}₹${t.amount.toFixed(2)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        updateEntryList();
+        updateAssetsList();
+        updateLiabilitiesList();
+        updateSummary();
+    </script>
+</body>
+</html>
